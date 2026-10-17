@@ -39,3 +39,13 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Specs
+
+This app is a personal "stay in touch with friends" app. Requirements live in `docs/`:
+
+- Read `docs/product.md` and the relevant spec in `docs/specs/` before implementing anything, and follow its acceptance criteria and out-of-scope list.
+- Only implement specs with status `approved`. If a spec is ambiguous, ask rather than guess, and suggest the spec edit.
+- Respect the records in `docs/decisions/`.
+- When implementation reveals something the spec didn't cover, update the spec (or flag it) in the same change.
+- Use `/spec <idea>` to draft new specs.
