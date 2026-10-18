@@ -1,6 +1,6 @@
 # 001 – Add, edit and remove friends
 
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** none (introduces persistence, see decisions 001 and 004)
 
 ## Problem / why
