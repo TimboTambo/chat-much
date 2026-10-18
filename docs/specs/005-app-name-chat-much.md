@@ -1,6 +1,6 @@
 # 005 – Rename the app to Chat Much
 
-- **Status:** approved
+- **Status:** done
 - **Depends on:** none (see decision 005)
 
 ## Problem / why
@@ -42,14 +42,14 @@ All values are set in `app.json` (and `package.json`). `ios/` and `android/` are
 
 ## Acceptance criteria
 
-- [ ] `app.json` and `package.json` contain exactly the values in the table above.
-- [ ] Given a fresh build on the iOS simulator, the home-screen icon is labelled "Chat Much".
-- [ ] Given contacts access has never been requested, when I tap **Add friends**, then the iOS prompt reads "Allow 'Chat Much' to access your contacts?" with the existing usage text.
-- [ ] Given the app is installed, when I open `chatmuch://` (e.g. `xcrun simctl openurl booted chatmuch://`), then Chat Much opens.
-- [ ] The app launches on the iOS 27 simulator without crashing (scene support still active).
-- [ ] Settings → Apps shows "Chat Much", and its bundle ID is `com.timlee.chatmuch`.
-- [ ] No source file or config (outside `docs/` history and generated folders) still refers to `com.anonymous.todo` or the `todo://` scheme.
-- [ ] Typecheck and lint pass.
+- [x] `app.json` and `package.json` contain exactly the values in the table above.
+- [x] Given a fresh build on the iOS simulator, the home-screen icon is labelled "Chat Much".
+- [x] Given contacts access has never been requested, when I tap **Add friends**, then the iOS prompt reads "Allow 'Chat Much' to access your contacts?" with the existing usage text.
+- [x] Given the app is installed, when I open `chatmuch://` (e.g. `xcrun simctl openurl booted chatmuch://`), then Chat Much opens.
+- [x] The app launches on the iOS 27 simulator without crashing (scene support still active).
+- [x] Settings → Apps shows "Chat Much", and its bundle ID is `com.timlee.chatmuch`.
+- [x] No source file or config (outside `docs/` history and generated folders) still refers to `com.anonymous.todo` or the `todo://` scheme.
+- [x] Typecheck and lint pass.
 
 ## Out of scope
 
