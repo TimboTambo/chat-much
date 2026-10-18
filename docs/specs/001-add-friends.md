@@ -1,7 +1,7 @@
 # 001 – Add, edit and remove friends
 
-- **Status:** approved
-- **Depends on:** none (introduces persistence, see decision 001)
+- **Status:** in-progress
+- **Depends on:** none (introduces persistence, see decisions 001 and 004)
 
 ## Problem / why
 
@@ -30,7 +30,8 @@ Before the app can tell me who's overdue, it needs to know my friends, how often
 - Shows all contacts that have a display name, sorted alphabetically (A–Z, case-insensitive). Contacts with no name are hidden.
 - A search field filters by name as I type (case-insensitive substring match).
 - Tapping a row toggles selection. A counter shows how many are selected, e.g. "Next (4)".
-- Contacts who are already friends (matched by contact id) show as checked and disabled with the label "Added".
+- Contacts who are already friends show as checked and disabled with the label "Added". A contact matches a friend by contact id, or by name (see **Duplicate names**).
+- While a contact is selected, other contacts with the same name show as disabled with the label "Same name selected".
 - **Next** is disabled when nothing is selected.
 
 ### Review step
@@ -49,12 +50,17 @@ Before the app can tell me who's overdue, it needs to know my friends, how often
 ### Add by name
 
 - A form with **Name** (required, trimmed, 1–60 characters), **Interval**, **Last spoke** and **Note**. Interval and last spoke work as in the review step.
-- Duplicate names are allowed. People can share a name.
+- **Save** is disabled while the name matches an existing friend (see **Duplicate names**). An inline message reads "You already have a friend called Sam."
+
+### Duplicate names
+
+- Duplicate names are not allowed. Two names match when they are equal after trimming, ignoring case ("sam smith " = "Sam Smith").
+- This applies everywhere a friend's name is set: the selection list, the review step, Add by name and Edit friend. When editing, the friend's own current name doesn't count as a match.
 
 ### Edit friend
 
 - From a friend's screen (the full friend detail screen comes in spec 003; for 001 a simple edit screen is enough):
-  - Edit **name**, **interval** and **note** (optional, up to 500 characters).
+  - Edit **name**, **interval** and **note** (optional, up to 500 characters). **Save** is disabled while the name is blank or matches another friend.
   - Last-spoke dates are edited through catch-up history (spec 003), not here.
 - Changing the interval immediately changes the due date (last catch-up + new interval).
 
@@ -65,6 +71,7 @@ Before the app can tell me who's overdue, it needs to know my friends, how often
 ### Due-date arithmetic
 
 - Intervals are stored as `{count, unit}`. Week = 7 days. Month = calendar month, so Jan 31 + 1 month = Feb 28/29 (clamped to the end of the month).
+- Because of that clamping, "A while ago" with a month interval can't always land on today. On 31 March with a 1-month interval, last spoke = 28 February and due = 28 March, so the friend shows as 3 days overdue. This only happens on the 29th–31st and is accepted.
 - Dates are local calendar dates with no time of day.
 
 ### Contact link
@@ -120,6 +127,9 @@ CatchUp
 - [ ] Given **Add by name**, when the name is blank or only spaces, then **Save** is disabled.
 - [ ] Given I change a friend's interval from 1 month to 1 week, then their due date updates to last catch-up + 7 days.
 - [ ] Given I confirm **Remove friend**, then the friend and their catch-ups are gone, and they can be selected again in the contacts list.
+- [ ] Given Sam Smith is a friend, when I type " sam smith" in **Add by name** or rename another friend to it, then **Save** is disabled and I see "You already have a friend called sam smith.".
+- [ ] Given Sam Smith is a friend added by name, when I open the selection list, then a contact named Sam Smith shows as "Added".
+- [ ] Given two contacts are both named Alex, when I select one, then the other shows as disabled with "Same name selected".
 - [ ] Typecheck and lint pass.
 
 ## Out of scope
@@ -137,5 +147,5 @@ CatchUp
 
 ## Open questions
 
-- [ ] **Storage library:** `expo-sqlite` (with or without a query helper such as Drizzle) vs a simple key-value store. To decide in plan mode, and record as a decision when chosen.
-- [ ] **Check the defaults I chose:** remove deletes history; duplicate names are allowed; no Contacts syncing; the interval ranges; "About a month ago" = 1 calendar month.
+- [x] **Storage library:** `expo-sqlite` with Drizzle ORM. See [decision 004](../decisions/004-sqlite-drizzle.md).
+- [x] **Check the defaults I chose:** confirmed: remove deletes history; no Contacts syncing; the interval ranges; "About a month ago" = 1 calendar month. Changed: duplicate names are **not** allowed (see **Duplicate names**).

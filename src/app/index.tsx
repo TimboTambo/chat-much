@@ -1,98 +1,86 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link, router, Stack } from 'expo-router';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { SystemColors } from '@/constants/colors';
+import { Spacing } from '@/constants/theme';
+import { useFriends, type Friend } from '@/db/friends';
+import { dueDate, formatLocalDate } from '@/lib/dates';
+import { formatInterval } from '@/lib/interval';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+// A basic list for spec 001. Spec 002 replaces it with the overdue-sorted home list.
+export default function FriendsScreen() {
+  const friends = useFriends();
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button icon="plus" accessibilityLabel="Add friends" onPress={() => router.push('/add')} />
+      </Stack.Toolbar>
+      <FlatList
+        style={styles.list}
+        contentInsetAdjustmentBehavior="automatic"
+        data={friends}
+        keyExtractor={(f) => f.id}
+        renderItem={({ item }) => <FriendRow friend={item} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyTitle}>No friends yet</Text>
+            <Text style={styles.subtitle}>Tap + to add people from your contacts.</Text>
+          </View>
+        }
+      />
+    </>
   );
 }
 
-export default function HomeScreen() {
+function FriendRow({ friend }: { friend: Friend }) {
+  const due = friend.lastCatchUp ? `due ${formatLocalDate(dueDate(friend.lastCatchUp, friend.interval))}` : null;
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <Link href={{ pathname: '/friend/[id]', params: { id: friend.id } }} asChild>
+      <Pressable style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+        <Text style={styles.name}>{friend.name}</Text>
+        <Text style={styles.subtitle}>{[formatInterval(friend.interval), due].filter(Boolean).join(' · ')}</Text>
+      </Pressable>
+    </Link>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  list: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    backgroundColor: SystemColors.cell,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
+  row: {
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+    paddingVertical: Spacing.two + Spacing.one,
+    gap: Spacing.half,
+  },
+  pressed: {
+    backgroundColor: SystemColors.fill,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: SystemColors.separator,
+    marginLeft: Spacing.three,
+  },
+  name: {
+    fontSize: 17,
+    color: SystemColors.label,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: SystemColors.secondaryLabel,
+  },
+  empty: {
+    alignItems: 'center',
+    paddingTop: Spacing.six,
+    paddingHorizontal: Spacing.four,
+    gap: Spacing.two,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: SystemColors.label,
   },
 });
